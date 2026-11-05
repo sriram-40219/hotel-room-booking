@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grand Hotel - Room Booking Application</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Header / Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-container">
+      <div class="brand">🏨 Grand Horizon Hotel</div>
+      <nav class="nav-links">
+        <a href="#rooms-section">Rooms</a>
+        <a href="#booking-section">Book Now</a>
+        <a href="#my-bookings-section">My Bookings</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-banner">
+    <div class="hero-text">
+      <h1>Hotel Room Booking System</h1>
+      <p>Seamless online reservations, real-time bill calculation, and instant booking confirmation.</p>
+      <a href="#booking-section" class="btn btn-primary">Book a Room Now</a>
+    </div>
+  </section>
+
+  <main class="main-wrapper">
+    <!-- Filter Section -->
+    <section class="filter-bar">
+      <label for="roomTypeFilter"><strong>Filter by Room:</strong></label>
+      <select id="roomTypeFilter" onchange="filterRooms()">
+        <option value="all">All Available Rooms</option>
+        <option value="Single Room">Single Room</option>
+        <option value="Double Room">Double Room</option>
+        <option value="Executive Suite">Executive Suite</option>
+        <option value="Presidential Suite">Presidential Suite</option>
+      </select>
+    </section>
+
+    <!-- Rooms Catalog Section -->
+    <section id="rooms-section">
+      <h2 class="section-heading">Available Rooms</h2>
+      <div class="rooms-grid" id="roomsContainer">
+        <!-- Rendered dynamically by index.js -->
+      </div>
+    </section>
+
+    <!-- Interactive Booking Section -->
+    <section id="booking-section" class="booking-section">
+      <div class="booking-card">
+        <h2>Online Room Reservation</h2>
+        <p class="subtitle">Complete the booking form below to secure your stay.</p>
+        
+        <form id="bookingForm" onsubmit="handleBooking(event)">
+          <div class="form-row">
+            <div class="form-col">
+              <label for="guestName">Guest Full Name *</label>
+              <input type="text" id="guestName" placeholder="e.g. Rahul Sharma" required>
+            </div>
+            <div class="form-col">
+              <label for="guestEmail">Email Address *</label>
+              <input type="email" id="guestEmail" placeholder="e.g. rahul@example.com" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-col">
+              <label for="guestPhone">Phone Number *</label>
+              <input type="tel" id="guestPhone" placeholder="10-digit mobile number" pattern="[0-9]{10}" required>
+            </div>
+            <div class="form-col">
+              <label for="roomSelect">Select Room *</label>
+              <select id="roomSelect" onchange="calculateBill()" required>
+                <!-- Populated by JS -->
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-col">
+              <label for="checkIn">Check-In Date *</label>
+              <input type="date" id="checkIn" onchange="calculateBill()" required>
+            </div>
+            <div class="form-col">
+              <label for="checkOut">Check-Out Date *</label>
+              <input type="date" id="checkOut" onchange="calculateBill()" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-col">
+              <label for="guestCount">Guests Count *</label>
+              <input type="number" id="guestCount" min="1" max="10" value="1" required>
+            </div>
+            <div class="form-col">
+              <label for="paymentMethod">Payment Method *</label>
+              <select id="paymentMethod" required>
+                <option value="Pay at Hotel">Pay at Check-In (Cash/Card)</option>
+                <option value="UPI">UPI / GPay / PhonePe</option>
+                <option value="Credit/Debit Card">Credit / Debit Card</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Addons -->
+          <div class="addons-box">
+            <label><strong>Optional Services:</strong></label>
+            <div class="addons-list">
+              <label><input type="checkbox" id="addonBreakfast" onchange="calculateBill()"> Buffet Breakfast (+₹300/night)</label>
+              <label><input type="checkbox" id="addonPickup" onchange="calculateBill()"> Airport Pickup (+₹700 flat)</label>
+            </div>
+          </div>
+
+          <!-- Bill Calculation -->
+          <div class="bill-summary">
+            <h3>Billing Summary</h3>
+            <div class="bill-item"><span>Nightly Rate:</span> <span id="billRate">₹0</span></div>
+            <div class="bill-item"><span>Total Nights:</span> <span id="billNights">0</span></div>
+            <div class="bill-item"><span>Room Charges:</span> <span id="billRoomCharges">₹0</span></div>
+            <div class="bill-item"><span>Extra Services:</span> <span id="billAddons">₹0</span></div>
+            <div class="bill-item"><span>GST (12%):</span> <span id="billTax">₹0</span></div>
+            <div class="bill-item total"><span>Grand Total:</span> <span id="billTotal">₹0</span></div>
+          </div>
+
+          <div class="button-group">
+            <button type="submit" class="btn btn-success">Confirm Reservation</button>
+            <button type="button" class="btn btn-secondary" onclick="resetBookingForm()">Reset</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- My Bookings History Section -->
+    <section id="my-bookings-section" class="bookings-history-section">
+      <div class="history-header">
+        <h2>Your Bookings Record</h2>
+        <button class="btn btn-danger btn-sm" onclick="clearAllBookings()">Clear History</button>
+      </div>
+
+      <div class="table-container">
+        <table class="bookings-table">
+          <thead>
+            <tr>
+              <th>Booking ID</th>
+              <th>Guest Name</th>
+              <th>Room</th>
+              <th>Check-In</th>
+              <th>Check-Out</th>
+              <th>Nights</th>
+              <th>Total (₹)</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="bookingsTableBody">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
+      </div>
+      <p id="emptyMsg" class="empty-text">No active reservations yet.</p>
+    </section>
+  </main>
+
+  <!-- Booking Confirmation Modal -->
+  <div id="confirmModal" class="modal-overlay">
+    <div class="modal-box">
+      <span class="modal-close" onclick="closeConfirmModal()">&times;</span>
+      <div class="modal-header">
+        <div class="icon">🎉</div>
+        <h2>Booking Confirmed!</h2>
+        <p>Thank you for choosing Grand Horizon Hotel.</p>
+      </div>
+      <div class="modal-body" id="modalReceiptDetails"></div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" onclick="window.print()">🖨️ Print Receipt</button>
+        <button class="btn btn-secondary" onclick="closeConfirmModal()">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>&copy; 2026 Grand Horizon Hotel Booking Web Application. All rights reserved.</p>
+  </footer>
+
+  <script src="index.js"></script>
+</body>
+</html>
